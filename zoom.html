@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <link rel="stylesheet" type="text/css" href="styles/jchartfx.css" />
+  
+   
+   
+   <script src="http://code.jquery.com/jquery-1.9.1.js" type="text/javascript"></script>3
+   <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js" type="text/javascript"></script>
+
+   
+   <script type="text/javascript" src="js/jchartfx.system.js"></script>   
+   <script type="text/javascript" src="js/jchartfx.coreVector.js"></script> 
+   <script type="text/javascript" src="js/jchartfx.advanced.js"></script>
+   <script type="text/javascript" src="js/jchartfx.ui.js"></script>     
+   
+   
+
+   
+   <!--<script type="text/javascript" src="js/jchartfx.vector.js"></script> -->
+   <!--<script type="text/javascript" src="js/jchartfx.surface.js"></script>--> 
+  
+   
+   <style>
+   
+   body 
+{
+    font-family: Arial;
+    font-size: 9pt;
+}
+
+#main
+{
+    width:550px;
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+}
+
+#description
+{
+    font-family: Arial;
+    font-size: 9pt;
+    Height: 50px;
+}
+
+.DivChart
+{
+    margin-top:10px;    
+        margin-left: 10px; 
+        width: 550px; 
+    overflow:hidden;
+        position:relative;
+}
+.ChartDetail{
+       height:300px;
+       width:550px;
+       display:inline-block;
+       overflow:hidden;
+}
+.DivPlotArea{
+        width: 0px;
+        height: 0px;
+        top: 313px;
+        left: 34px;
+        position: absolute;
+        padding: 0px; 
+}
+
+.DivChartWhole{
+        height: 150px; 
+        width: 550px; 
+        display: inline-block;
+}
+
+.handleDivDrag{
+        background-image: url(sampleImages/divbg.png);
+        width: 0px;
+        height: 0px;
+        top: 0px;
+        left: 0px;
+        position: relative;
+        margin: 0px;
+
+}
+
+.handleBarOffRight{
+        background-image: url(sampleImages/handle.png);
+        background-position: center;
+        background-repeat: no-repeat;
+        margin: 0 -6px;
+}
+
+.handleBarOffLeft{
+        background-image: url(sampleImages/handle.png);
+        background-position: center;
+        background-repeat: no-repeat;
+        margin: 0 -6px;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+.ui-resizable-handle {background-image:none !important;}
+}
+   
+   </style>
+</head>
+<body>
+
+
+		<div id="DivChart" class="DivChart">
+                <div id="ChartDetail" style="height: 300px; width: 550px; display: inline-block" class="ChartDetail"></div>
+                        <div id="DivChartWhole" class="DivChartWhole">
+                                <div id="ChartWhole" style="width:550px; height:150px; display:inline-block"></div>
+                                        <div id="DivPlotArea" class="DivPlotArea">
+                                                <div id="DivDrag" class="handleDivDrag">
+                                                        <img alt="spacer" src="sampleImages/Spacer.gif" id="ImgLeftDrag" class="handleBarOffLeft" align="left" />
+                                                        <img alt="spacer" src="sampleImages/Spacer.gif" id="ImgRightDrag" class="handleBarOffRight" align="right" />
+                                                </div>
+                                        </div>
+                        </div>
+        </div>
+
+
+
+<script type="text/javascript" language="javascript">
+
+window.onload = function () {
+        onLoadDoc();
+    }
+
+var ChartDetail;
+var ChartWhole;
+
+
+function ConfigureVisualOptions() {
+
+    ChartDetail = new cfx.Chart();
+    ChartWhole = new cfx.Chart();
+
+        ChartWhole.getData().setSeries(1);
+        ChartDetail.getData().setSeries(1);
+                    
+        
+    var title = new cfx.TitleDockable();
+    title.setText("Zoom Scrollbar sample");
+    title.setSeparation(20);
+    ChartDetail.getTitles().add(title);
+
+    ChartDetail.setGallery(cfx.Gallery.Area);
+    ChartWhole.setGallery(cfx.Gallery.Area);
+
+    var sb = new cfx.SimpleBorder();
+    ChartDetail.setBorder(sb);
+    ChartWhole.setBorder(sb);
+
+    ChartDetail.getAllSeries().setMarkerShape(cfx.MarkerShape.None);
+    ChartWhole.getAllSeries().setMarkerShape(cfx.MarkerShape.None);
+
+    ChartDetail.getLegendBox().setVisible(false);
+    ChartWhole.getLegendBox().setVisible(false);
+
+    /*ChartDetail.getPlotAreaMargin().setBottom(1);
+    ChartWhole.getPlotAreaMargin().setTop(21);
+    ChartWhole.getAxisY().setMin(0);
+    ChartWhole.getAxisY().setMax(30);
+    ChartDetail.getAxisY().setMin(0);
+    ChartDetail.getAxisY().setMax(30);
+    ChartWhole.getAxisX().setStep(30);
+    ChartDetail.getAxisX().setMinorStep(1);
+*/
+    ChartDetail.getAxisY().getGrids().getMajor().setVisible(true);
+    ChartDetail.getAxisX().getGrids().getMajor().setVisible(true);
+    ChartWhole.getAxisY().getGrids().getMajor().setVisible(true);
+    ChartWhole.getAxisX().getGrids().getMajor().setVisible(true);
+
+    ChartWhole.getAxisX().setStyle(ChartWhole.getAxisX().getStyle() & ~cfx.AxisStyles.AutoFirstLabel);
+    ChartDetail.getAxisX().setStyle(ChartDetail.getAxisX().getStyle() | cfx.AxisStyles.ShowEnds);
+
+    var divHolder = document.getElementById('ChartDetail');
+    ChartDetail.create(divHolder);
+
+    divHolder = document.getElementById('ChartWhole');
+    ChartWhole.create(divHolder);
+
+}
+
+function PassDataToChart() {
+
+    ChartDetail.getDataSourceSettings().getFields().clear();
+    var field1 = new cfx.FieldMap();
+    field1.setName("Ydata");
+    field1.setUsage(cfx.FieldUsage.Value);
+
+    var field2 = new cfx.FieldMap();
+    field2.setName("Xdata");
+    field2.setUsage(cfx.FieldUsage.XValue);
+
+    ChartDetail.getDataSourceSettings().getFields().add(field1);
+    ChartDetail.getDataSourceSettings().getFields().add(field2);
+
+    ChartWhole.getDataSourceSettings().getFields().clear();
+    var field3 = new cfx.FieldMap();
+    field3.setName("Ydata");
+    field3.setUsage(cfx.FieldUsage.Value);
+
+    var field4 = new cfx.FieldMap();
+    field4.setName("Xdata");
+    field4.setUsage(cfx.FieldUsage.XValue);
+
+    ChartWhole.getDataSourceSettings().getFields().add(field3);
+    ChartWhole.getDataSourceSettings().getFields().add(field4);
+
+    /*
+	var items = [{"Xdata":"31.07.2013","Ydata":4965},{"Xdata":"1.08.2013","Ydata":4978},{"Xdata":"2.08.2013","Ydata":4991},{"Xdata":"3.08.2013","Ydata":4997},{"Xdata":"4.08.2013","Ydata":5001},{"Xdata":"5.08.2013","Ydata":5014},{"Xdata":"6.08.2013","Ydata":5028},{"Xdata":"7.08.2013","Ydata":5044},{"Xdata":"8.08.2013","Ydata":5059},{"Xdata":"9.08.2013","Ydata":5075},{"Xdata":"10.08.2013","Ydata":5082},{"Xdata":"11.08.2013","Ydata":5086},{"Xdata":"12.08.2013","Ydata":5102},{"Xdata":"13.08.2013","Ydata":5117},{"Xdata":"14.08.2013","Ydata":5127}];*/
+	
+	//var items = [{"Xdata":"1","Ydata":"4965"},{"Xdata":"1","Ydata":"4978"},{"Xdata":"3","Ydata":"4991"},{"Xdata":"4","Ydata":"4997"},{"Xdata":"5","Ydata":"5001"}];
+	
+	
+	var items = [{"Xdata":"31.07.2013","Ydata":1965},{"Xdata":"1.08.2013","Ydata":2978},{"Xdata":"2.08.2013","Ydata":991},{"Xdata":"3.08.2013","Ydata":4997},{"Xdata":"4.08.2013","Ydata":5001},{"Xdata":"5.08.2013","Ydata":5014},{"Xdata":"6.08.2013","Ydata":5028},{"Xdata":"7.08.2013","Ydata":5044},{"Xdata":"8.08.2013","Ydata":5059},{"Xdata":"9.08.2013","Ydata":5075},{"Xdata":"10.08.2013","Ydata":5082},{"Xdata":"11.08.2013","Ydata":5086},{"Xdata":"12.08.2013","Ydata":5102},{"Xdata":"13.08.2013","Ydata":5117},{"Xdata":"14.08.2013","Ydata":5127}];
+	
+	/*
+	,{"Xdata":"5.08.2013","Ydata":5014},{"Xdata":"6.08.2013","Ydata":5028},{"Xdata":"7.08.2013","Ydata":5044},{"Xdata":"8.08.2013","Ydata":5059},{"Xdata":"9.08.2013","Ydata":5075},{"Xdata":"10.08.2013","Ydata":5082},{"Xdata":"11.08.2013","Ydata":5086},{"Xdata":"12.08.2013","Ydata":5102},{"Xdata":"13.08.2013","Ydata":5117},{"Xdata":"14.08.2013","Ydata":5127}];
+	*/
+	
+	/*
+	var items = [{
+        "Xdata": "2012-01-21T23:45:10.280Z",
+        "Ydata": 15
+    }, {
+        "Xdata": "2012-01-22T23:45:10.280Z",
+        "Ydata": 9
+    }, {
+        "Xdata": "2012-02-10T23:45:10.280Z",
+        "Ydata": 25
+    }, {
+        "Xdata": "2012-02-19T23:45:10.280Z",
+        "Ydata": 14
+    }, {
+        "Xdata": "2012-03-21T23:45:10.280Z",
+        "Ydata": 18
+    }, {
+        "Xdata": "2012-03-22T23:45:10.280Z",
+        "Ydata": 9
+    }, {
+        "Xdata": "2012-04-10T23:45:10.280Z",
+        "Ydata": 3
+    }, {
+        "Xdata": "2012-04-19T23:45:10.280Z",
+        "Ydata": 14
+    }, {
+        "Xdata": "2012-05-10T23:45:10.280Z",
+        "Ydata": 20
+    }, {
+        "Xdata": "2012-05-19T23:45:10.280Z",
+        "Ydata": 14
+    }, {
+        "Xdata": "2012-06-21T23:45:10.280Z",
+        "Ydata": 4
+    }, {
+        "Xdata": "2012-06-22T23:45:10.280Z",
+        "Ydata": 9
+    }, {
+        "Xdata": "2012-07-10T23:45:10.280Z",
+        "Ydata": 12
+    }, {
+        "Xdata": "2012-07-19T23:45:10.280Z",
+        "Ydata": 25
+    }, {
+        "Xdata": "2012-08-21T23:45:10.280Z",
+        "Ydata": 18
+    }, {
+        "Xdata": "2012-08-22T23:45:10.280Z",
+        "Ydata": 3
+    }, {
+        "Xdata": "2012-09-10T23:45:10.280Z",
+        "Ydata": 12
+    }, {
+        "Xdata": "2012-09-19T23:45:10.280Z",
+        "Ydata": 22
+    }, {
+        "Xdata": "2012-10-10T23:45:10.280Z",
+        "Ydata": 6
+    }, {
+        "Xdata": "2012-10-19T23:45:10.280Z",
+        "Ydata": 14
+    }];
+	*/
+	
+    ChartWhole.setDataSource(items);
+    ChartDetail.setDataSource(items);
+
+}
+
+function updateDetail(newDivLeft, newDivWidth) {
+    var offset = 36;
+    var newAxisXVal = ChartWhole.getAxisX().pixelToValue(newDivLeft + offset);
+    var newAxisXValTo = ChartWhole.getAxisX().pixelToValue(newDivWidth + newDivLeft + offset);
+    ChartDetail.getAxisX().setScrollView(newAxisXVal, newAxisXValTo);
+}
+
+function configureDragger() {
+    $(".handleDivDrag").css("top", "12px");
+    $(".handleDivDrag").css("left", "0px");
+    $(".handleDivDrag").css("height", "77px");
+    $(".DivPlotArea").css("height", "89px");
+    $(".handleBarOffLeft").css("height", "77px");
+    $(".handleBarOffRight").css("height", "77px");
+    $(".handleDivDrag").css("width", "124px");
+    $(".DivPlotArea").css("width", "487px");
+    $(".handleBarOffLeft").css("width", "12px");
+    $(".handleBarOffRight").css("width", "12px");
+
+    var DivWidthValue = ChartWhole.getAxisX().getMin() + ((ChartWhole.getAxisX().getMax() - ChartWhole.getAxisX().getMin()) * 0.2);
+    ChartDetail.getAxisX().setScrollView(ChartWhole.getAxisX().getMin(), DivWidthValue);
+}
+
+function onLoadDoc() {
+        
+        ConfigureVisualOptions();
+    PassDataToChart();
+    configureDragger();
+        
+    $("#DivDrag").draggable({
+        containment: "#DivPlotArea",
+        axis: "x",
+        cursor: "move"
+    });
+    $("#DivDrag").resizable({
+        containment: "#DivPlotArea",
+        handles: "e, w"		
+    });
+
+    $("#DivDrag").draggable({
+        drag: function () {
+            if (parseInt($("#DivDrag").css('left'),10) + parseInt($("#DivDrag").css('width'),10) > parseInt($("#DivPlotArea").css("width"),10)) {
+                $("#DivDrag").css("left", parseInt($("#DivPlotArea").css("width"),10) - parseInt($("#DivDrag").css("width"),10));
+            }
+            var zoomWindowLeft = parseInt($("#DivDrag").css("left"),10);
+            var zoomWindowWidth = parseInt($("#DivDrag").css("width"),10);
+            updateDetail(zoomWindowLeft, zoomWindowWidth);
+        }
+    });
+
+    $("#DivDrag").resizable({
+        resize: function () {
+            var zoomWindowLeft = parseInt($("#DivDrag").css("left"),10);
+            var zoomWindowWidth = parseInt($("#DivDrag").css("width"),10);
+            updateDetail(zoomWindowLeft, zoomWindowWidth);
+        }
+    });
+        
+        
+} 
+
+</script>
+</body>
+</html>
